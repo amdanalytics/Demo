@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLOps Flask App - Iris Prediction</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Iris Prediction</h1>
+    <p>Enter the features to predict the Iris species using a machine learning model.</p>
+    <form id="predictForm">
+        <label for="feature1">Sepal Length:</label>
+        <input type="number" step="0.1" id="feature1" name="feature1" required><br><br>
+        <label for="feature2">Sepal Width:</label>
+        <input type="number" step="0.1" id="feature2" name="feature2" required><br><br>
+        <label for="feature3">Petal Length:</label>
+        <input type="number" step="0.1" id="feature3" name="feature3" required><br><br>
+        <label for="feature4">Petal Width:</label>
+        <input type="number" step="0.1" id="feature4" name="feature4" required><br><br>
+        <button type="submit">Predict</button>
+    </form>
+    <h3>Prediction Result:</h3>
+    <p id="result"></p>
+
+    <script>
+        document.getElementById('predictForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const features = [
+                parseFloat(formData.get('feature1')),
+                parseFloat(formData.get('feature2')),
+                parseFloat(formData.get('feature3')),
+                parseFloat(formData.get('feature4'))
+            ];
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ features })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('result').innerText = `Error: ${data.error}`;
+                } else {
+                    const species = ['Setosa', 'Versicolor', 'Virginica'];
+                    const prediction = data.prediction[0];
+                    document.getElementById('result').innerText = `Predicted Iris Species: ${species[prediction]}`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
